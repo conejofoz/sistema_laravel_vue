@@ -10,11 +10,13 @@
     <meta name="keyword" content="Sistema ventas Laravel Vue Js, Sistema compras Laravel Vue Js">
     <link rel="shortcut icon" href="img/favicon.png">
     <title>Sistema Ventas - IncanatoIT</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Icons -->
     <link href="css/plantilla.css" rel="stylesheet">
 </head>
 
 <body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">
+<div id="app">
     <header class="app-header navbar">
         <button class="navbar-toggler mobile-sidebar-toggler d-lg-none mr-auto" type="button">
           <span class="navbar-toggler-icon"></span>
@@ -149,6 +151,7 @@
 
         <!-- /Fin del contenido principal -->
     </div>
+    </div>
 
     
 
@@ -159,6 +162,9 @@
 
     <!-- Bootstrap and necessary plugins -->
     <script src="js/plantilla.js"></script>
+    <script src="js/app.js"></script>
+
+    
     
 </body>
 

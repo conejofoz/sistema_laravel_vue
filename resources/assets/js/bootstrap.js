@@ -8,7 +8,7 @@ window._ = require('lodash');
 
 try {
     window.Popper = require('popper.js').default;
-    window.$ = window.jQuery = require('jquery');
+    //window.$ = window.jQuery = require('jquery'); //jquery já foi carregado junto com a plantilla
 
     require('bootstrap');
 } catch (e) {}
@@ -53,3 +53,5 @@ if (token) {
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     encrypted: true
 // });
+
+

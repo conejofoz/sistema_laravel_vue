@@ -11,7 +11,8 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.styles([
+
+ mix.styles([
     'resources/assets/plantilla/css/font-awesome.min.css',
     'resources/assets/plantilla/css/simple-line-icons.min.css',
     'resources/assets/plantilla/css/style.css'
@@ -23,4 +24,5 @@ mix.styles([
     'resources/assets/plantilla/js/Chart.min.js',
     'resources/assets/plantilla/js/pace.min.js',
     'resources/assets/plantilla/js/template.js'
-],'public/js/plantilla.js');
+],'public/js/plantilla.js')
+.js(['resources/assets/js/app.js'],'public/js/app.js'); /*estava dando erro não tinha a pasta assets era direto resources/js*/
