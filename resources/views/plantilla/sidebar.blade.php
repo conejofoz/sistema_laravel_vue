@@ -7,7 +7,7 @@
                     <li class="nav-title">
                         Mantenimiento
                     </li>
-                    <li @click="menu=1" class="nav-item nav-dropdown">
+                    <li class="nav-item nav-dropdown">
                         <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-bag"></i> Almacén</a>
                         <ul class="nav-dropdown-items">
                             <li @click="menu=1" class="nav-item">
