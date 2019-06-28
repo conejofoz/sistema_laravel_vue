@@ -24,14 +24,23 @@ class CategoriaController extends Controller
     public function index_paginacao_com_query_builder(Request $request)
     {
         //if(!$request->ajax()) return redirect('/');
-        $categorias = DB::table('categorias')->paginate(2);
+        $categorias = DB::table('categorias')->paginate(5);
         return $categorias;
     }
     
     public function index(Request $request)
     {
-        //if(!$request->ajax()) return redirect('/');
-        $categorias = Categoria::paginate(2);
+        if(!$request->ajax()) return redirect('/');
+
+        $buscar = $request->buscar;
+        $criterio = $request->criterio;
+
+        if($buscar==''){
+            //$categorias = Categoria::paginate(5);
+            $categorias = Categoria::orderBy('id','desc')->paginate(5);
+        } else {
+            $categorias = Categoria::where($criterio, 'like', '%' . $buscar . '%')->orderBy('id', 'desc')->paginate(5);
+        }
         return [
             'pagination' => [
                 'total'         => $categorias->total(),
