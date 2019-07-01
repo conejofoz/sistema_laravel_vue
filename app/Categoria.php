@@ -13,4 +13,11 @@ class Categoria extends Model
 
     protected $fillable = ['nombre', 'descripcion', 'condicion'];
     /**proteger os campos aos quais vamos enviar valores */
+
+
+
+    /*indicar que uma categoria pertence a varios artigos*/
+    public function articulos(){
+        return $this->hasMany('App\Articulo');
+    }
 }
