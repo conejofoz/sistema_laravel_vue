@@ -11,7 +11,11 @@
       <div class="card">
         <div class="card-header">
           <i class="fa fa-align-justify"></i> Articulos
-          <button type="button" @click="abrirModal('articulo','registrar')" class="btn btn-secondary">
+          <button
+            type="button"
+            @click="abrirModal('articulo','registrar')"
+            class="btn btn-secondary"
+          >
             <i class="icon-plus"></i>&nbsp;Nuevo
           </button>
         </div>
@@ -155,17 +159,44 @@
           <div class="modal-body">
             <form action method="post" enctype="multipart/form-data" class="form-horizontal">
               <div class="form-group row">
-                <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
-                <div class="col-md-9">
-                  <input
-                    type="text"
-                    v-model="nombre"
-                    class="form-control"
-                    placeholder="Nombre de categoría"
-                  />
-                  <span class="help-block">(*) Ingrese el nombre de la categoría</span>
-                </div>
+                  <label class="col-md-3 form-control-label" for="text-input">Categoria</label>
+                  <div class="col-md-9">
+                    <select class="form-control" v-model="idcategoria">
+                        <option value="0" disabled>Seleccione</option>
+                        <option v-for="categoria in arrayCategoria" :key="categoria.id" :value="categoria.id" v-text="categoria.nombre"></option>
+                    </select>
+                  </div>
               </div>
+              
+              <div class="form-group row">
+                  <label class="col-md-3 form-control-label" for="text-input">Código de barra</label>
+                  <div class="col-md-9">
+                      <input type="text" v-model="codigo" class="form-control" placeholder="Código de barras"/>
+                  </div>
+              </div>
+
+              <div class="form-group row">
+                  <label class="col-md-3 form-control-label" for="text-input">Nombre</label>
+                  <div class="col-md-9">
+                      <input type="text" v-model="nombre" class="form-control" placeholder="Nombre de articulo"/>
+                      <span class="help-block">(*) Ingrese el nombre de la categoría</span>
+                  </div>
+              </div>
+
+              <div class="form-group row">
+                  <label class="col-md-3 form-control-label" for="text-input">Precio venta</label>
+                  <div class="col-md-9">
+                      <input type="number" v-model="precio_venta" class="form-control" placeholder=""/>
+                  </div>
+              </div>
+
+              <div class="form-group row">
+                  <label class="col-md-3 form-control-label" for="text-input">Stock</label>
+                  <div class="col-md-9">
+                      <input type="number" v-model="stock" class="form-control" placeholder=""/>
+                  </div>
+              </div>
+
               <div class="form-group row">
                 <label class="col-md-3 form-control-label" for="email-input">Descripción</label>
                 <div class="col-md-9">
@@ -242,303 +273,317 @@
 
 <script>
 export default {
-  data() {
-    return {
-      articulo_id: 0,
-      idarticulo : 0,
-      nombre_articulo : '',
-      codigo: '',
-      nombre: "",
-      precio_venta : 0,
-      stock : 0,
-      descripcion: "",
-      arrayArticulo: [],
-      modal: 0,
-      tituloModal: "",
-      tipoAccion: 0,
-      errorArticulo: 0,
-      errorMostrarMsjArticulo: [],
-      pagination: {
-        total: 0,
-        current_page: 0,
-        per_page: 0,
-        last_page: 0,
-        from: 0,
-        to: 0
-      },
-      offset: 3,
-      criterio: "nombre",
-      buscar: ""
-    };
-  },
-  computed: {
-    isActived: function() {
-      return this.pagination.current_page;
+    data() {
+        return {
+            articulo_id: 0,
+            idarticulo: 0,
+            idcategoria: 0,
+            nombre_articulo: "",
+            codigo: "",
+            nombre: "",
+            precio_venta: 0,
+            stock: 0,
+            descripcion: "",
+            arrayArticulo: [],
+            modal: 0,
+            tituloModal: "",
+            tipoAccion: 0,
+            errorArticulo: 0,
+            errorMostrarMsjArticulo: [],
+            pagination: {
+                total: 0,
+                current_page: 0,
+                per_page: 0,
+                last_page: 0,
+                from: 0,
+                to: 0
+            },
+            offset: 3,
+            criterio: "nombre",
+            buscar: "",
+            arrayCategoria : []
+        };
     },
-    pagesNumber: function() {
-      if (!this.pagination.to) {
-        return [];
-      }
-
-      var from = this.pagination.current_page - this.offset;
-      if (from < 1) {
-        from = 1;
-      }
-
-      var to = from + this.offset * 2;
-      if (to >= this.pagination.last_page) {
-        to = this.pagination.last_page;
-      }
-
-      var pagesArray = [];
-      while (from <= to) {
-        pagesArray.push(from);
-        from++;
-      }
-
-      return pagesArray;
-    }
-  },
-  methods: {
-    listarArticulo(page, buscar, criterio) {
-      let me = this;
-
-      var url =
-        "/articulo?page=" +
-        page +
-        "&buscar=" +
-        buscar +
-        "&criterio=" +
-        criterio;
-
-      axios
-        .get(url)
-        .then(function(response) {
-          var respuesta = response.data;
-          me.arrayArticulo = respuesta.articulos.data;
-          me.pagination = respuesta.pagination;
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
-    },
-    cambiarPagina(page, buscar, criterio) {
-      let me = this;
-      //atualiza a pagina atual
-      me.pagination.current_page = page;
-
-      //chama o metodo listar articulo para mostrar os dados dessa pagina
-      me.listarArticulo(page, buscar, criterio);
-    },
-    registrarArticulo() {
-      if (this.validarArticulo()) {
-        return;
-      }
-
-      let me = this;
-
-      axios
-        .post("/articulo/registrar", {
-          nombre: this.nombre,
-          descripcion: this.descripcion
-        })
-        .then(function(response) {
-          me.cerrarModal();
-          me.listarArticulo(1, "", nombre);
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
-    },
-    actualizarArticulo() {
-      if (this.validarArticulo()) {
-        return;
-      }
-
-      let me = this;
-
-      axios
-        .put("/articulo/actualizar", {
-          nombre: this.nombre,
-          descripcion: this.descripcion,
-          id: this.articulo_id
-        })
-        .then(function(response) {
-          me.cerrarModal();
-          me.listarArticulo(1, "", nombre);
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
-    },
-    desactivarArticulo(id) {
-      const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-          confirmButton: "btn btn-success",
-          cancelButton: "btn btn-danger"
+    computed: {
+        isActived: function() {
+            return this.pagination.current_page;
         },
-        buttonsStyling: false
-      });
-
-      swalWithBootstrapButtons
-        .fire({
-          title: "Esta seguro de desactivar este articulo?",
-          text: "Você poderá reverter a operação mais tarde!",
-          type: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Si, desactivar!",
-          cancelButtonText: "No, cancelar!",
-          reverseButtons: true
-        })
-        .then(result => {
-          if (result.value) {
-            let me = this;
-
-            axios
-              .put("/articulo/desactivar", {
-                id: id
-              })
-              .then(function(response) {
-                me.listarArticulo(1, "", nombre);
-                swalWithBootstrapButtons.fire(
-                  "Desactivado!",
-                  "O articulo foi desactivado.",
-                  "success"
-                );
-              })
-              .catch(function(error) {
-                console.log(error);
-              });
-          } else if (
-            // Read more about handling dismissals
-            result.dismiss === Swal.DismissReason.cancel
-          ) {
-            swalWithBootstrapButtons.fire(
-              "Cancelado",
-              "O registro não foi desativado :)",
-              "error"
-            );
-          }
-        });
-    },
-    activarArticulo(id) {
-      const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-          confirmButton: "btn btn-success",
-          cancelButton: "btn btn-danger"
-        },
-        buttonsStyling: false
-      });
-
-      swalWithBootstrapButtons
-        .fire({
-          title: "Esta seguro de activar este articulo?",
-          text: "Você poderá reverter a operação mais tarde!",
-          type: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Si, activar!",
-          cancelButtonText: "No, cancelar!",
-          reverseButtons: true
-        })
-        .then(result => {
-          if (result.value) {
-            let me = this;
-
-            axios
-              .put("/articulo/activar", {
-                id: id
-              })
-              .then(function(response) {
-                me.listarArticulo(1, "", nombre);
-                swalWithBootstrapButtons.fire(
-                  "Activado!",
-                  "O articulo foi activado.",
-                  "success"
-                );
-              })
-              .catch(function(error) {
-                console.log(error);
-              });
-          } else if (
-            // Read more about handling dismissals
-            result.dismiss === Swal.DismissReason.cancel
-          ) {
-            swalWithBootstrapButtons.fire(
-              "Cancelado",
-              "O registro não foi ativado :)",
-              "error"
-            );
-          }
-        });
-    },
-    validarArticulo() {
-      this.errorArticulo = 0;
-      this.errorMostrarMsjArticulo = [];
-
-      if (!this.nombre)
-        this.errorMostrarMsjArticulo.push(
-          "El nombre de lo articulo no puede estar vacio"
-        );
-
-      if (this.errorMostrarMsjArticulo.length) this.errorArticulo = 1;
-
-      return this.errorArticulo;
-    },
-    cerrarModal() {
-      this.modal = 0;
-      this.tituloModal = "";
-      this.nombre = "";
-      this.descripcion = "";
-    },
-    abrirModal(modelo, accion, data = []) {
-      switch (modelo) {
-        case "articulo": {
-          switch (accion) {
-            case "registrar": {
-              this.modal = 1;
-              this.tituloModal = "Registrar Articulo";
-              this.nombre = "";
-              this.descripcion = "";
-              this.tipoAccion = 1;
-              break;
+        pagesNumber: function() {
+            if (!this.pagination.to) {
+                return [];
             }
-            case "actualizar": {
-              this.modal = 1;
-              this.tituloModal = "Actualizar Articulo";
-              this.nombre = data.nombre;
-              this.descripcion = data.descripcion;
-              this.articulo_id = data.id;
-              this.tipoAccion = 2;
-              break;
+
+            var from = this.pagination.current_page - this.offset;
+            if (from < 1) {
+                from = 1;
             }
-          }
+
+            var to = from + this.offset * 2;
+            if (to >= this.pagination.last_page) {
+                to = this.pagination.last_page;
+            }
+
+            var pagesArray = [];
+            while (from <= to) {
+                pagesArray.push(from);
+                from++;
+            }
+
+            return pagesArray;
         }
-      }
+    },
+    methods: {
+        listarArticulo(page, buscar, criterio) {
+            let me = this;
+
+            var url =
+                "/articulo?page=" +
+                page +
+                "&buscar=" +
+                buscar +
+                "&criterio=" +
+                criterio;
+
+            axios
+                .get(url)
+                .then(function(response) {
+                    var respuesta = response.data;
+                    me.arrayArticulo = respuesta.articulos.data;
+                    me.pagination = respuesta.pagination;
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        },
+        selectCategoria(){
+            let me = this;
+            var url = '/categoria/selectCategoria';
+            axios.get(url).then(function(response){
+                var respuesta = response.data;
+                me.arrayCategoria = respuesta.categorias;
+            })
+            .catch(function(error){
+                console.log(error);
+            })
+        },
+        cambiarPagina(page, buscar, criterio) {
+            let me = this;
+            //atualiza a pagina atual
+            me.pagination.current_page = page;
+
+            //chama o metodo listar articulo para mostrar os dados dessa pagina
+            me.listarArticulo(page, buscar, criterio);
+        },
+        registrarArticulo() {
+            if (this.validarArticulo()) {
+                return;
+            }
+
+            let me = this;
+
+            axios
+                .post("/articulo/registrar", {
+                    nombre: this.nombre,
+                    descripcion: this.descripcion
+                })
+                .then(function(response) {
+                    me.cerrarModal();
+                    me.listarArticulo(1, "", nombre);
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        },
+        actualizarArticulo() {
+            if (this.validarArticulo()) {
+                return;
+            }
+
+            let me = this;
+
+            axios
+                .put("/articulo/actualizar", {
+                    nombre: this.nombre,
+                    descripcion: this.descripcion,
+                    id: this.articulo_id
+                })
+                .then(function(response) {
+                    me.cerrarModal();
+                    me.listarArticulo(1, "", nombre);
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        },
+        desactivarArticulo(id) {
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            });
+
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta seguro de desactivar este articulo?",
+                    text: "Você poderá reverter a operação mais tarde!",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, desactivar!",
+                    cancelButtonText: "No, cancelar!",
+                    reverseButtons: true
+                })
+                .then(result => {
+                    if (result.value) {
+                        let me = this;
+
+                        axios
+                            .put("/articulo/desactivar", {
+                                id: id
+                            })
+                            .then(function(response) {
+                                me.listarArticulo(1, "", nombre);
+                                swalWithBootstrapButtons.fire(
+                                    "Desactivado!",
+                                    "O articulo foi desactivado.",
+                                    "success"
+                                );
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            });
+                    } else if (
+                        // Read more about handling dismissals
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        swalWithBootstrapButtons.fire(
+                            "Cancelado",
+                            "O registro não foi desativado :)",
+                            "error"
+                        );
+                    }
+                });
+        },
+        activarArticulo(id) {
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            });
+
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta seguro de activar este articulo?",
+                    text: "Você poderá reverter a operação mais tarde!",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, activar!",
+                    cancelButtonText: "No, cancelar!",
+                    reverseButtons: true
+                })
+                .then(result => {
+                    if (result.value) {
+                        let me = this;
+
+                        axios
+                            .put("/articulo/activar", {
+                                id: id
+                            })
+                            .then(function(response) {
+                                me.listarArticulo(1, "", nombre);
+                                swalWithBootstrapButtons.fire(
+                                    "Activado!",
+                                    "O articulo foi activado.",
+                                    "success"
+                                );
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            });
+                    } else if (
+                        // Read more about handling dismissals
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        swalWithBootstrapButtons.fire(
+                            "Cancelado",
+                            "O registro não foi ativado :)",
+                            "error"
+                        );
+                    }
+                });
+        },
+        validarArticulo() {
+            this.errorArticulo = 0;
+            this.errorMostrarMsjArticulo = [];
+
+            if (!this.nombre)
+                this.errorMostrarMsjArticulo.push(
+                    "El nombre de lo articulo no puede estar vacio"
+                );
+
+            if (this.errorMostrarMsjArticulo.length) this.errorArticulo = 1;
+
+            return this.errorArticulo;
+        },
+        cerrarModal() {
+            this.modal = 0;
+            this.tituloModal = "";
+            this.nombre = "";
+            this.descripcion = "";
+        },
+        abrirModal(modelo, accion, data = []) {
+            switch (modelo) {
+                case "articulo": {
+                    switch (accion) {
+                        case "registrar": {
+                            this.modal = 1;
+                            this.tituloModal = "Registrar Articulo";
+                            this.nombre = "";
+                            this.descripcion = "";
+                            this.tipoAccion = 1;
+                            break;
+                        }
+                        case "actualizar": {
+                            this.modal = 1;
+                            this.tituloModal = "Actualizar Articulo";
+                            this.nombre = data.nombre;
+                            this.descripcion = data.descripcion;
+                            this.articulo_id = data.id;
+                            this.tipoAccion = 2;
+                            break;
+                        }
+                    }
+                }
+            }
+            this.selectCategoria();
+        }
+    },
+    mounted() {
+        this.listarArticulo(1, this.buscar, this.criterio);
     }
-  },
-  mounted() {
-    this.listarArticulo(1, this.buscar, this.criterio);
-  }
 };
 </script>
 <style>
 .modal-content {
-  width: 100% !important;
-  position: absolute !important;
+    width: 100% !important;
+    position: absolute !important;
 }
 .mostrar {
-  display: list-item !important;
-  opacity: 1 !important;
-  position: absolute !important;
-  background-color: #3c29297a !important;
+    display: list-item !important;
+    opacity: 1 !important;
+    position: absolute !important;
+    background-color: #3c29297a !important;
 }
 .div-error {
-  display: flex;
-  justify-content: center;
+    display: flex;
+    justify-content: center;
 }
 .text-error {
-  color: red !important;
-  font-weight: bold;
+    color: red !important;
+    font-weight: bold;
 }
 </style>
 

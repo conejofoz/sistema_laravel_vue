@@ -17,7 +17,8 @@ class Categoria extends Model
 
 
     /*indicar que uma categoria pertence a varios artigos*/
-    public function articulos(){
+    public function articulos()
+    {
         return $this->hasMany('App\Articulo');
     }
 }
