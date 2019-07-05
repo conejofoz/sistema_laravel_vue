@@ -172,6 +172,9 @@
                   <label class="col-md-3 form-control-label" for="text-input">Código de barra</label>
                   <div class="col-md-9">
                       <input type="text" v-model="codigo" class="form-control" placeholder="Código de barras"/>
+                      <barcode :value="codigo" :options="{ format: 'EAN-13'}">
+                          Generando código de barras
+                      </barcode>
                   </div>
               </div>
 
@@ -272,13 +275,14 @@
 </template>
 
 <script>
+import VueBarcode from 'vue-barcode';
 export default {
     data() {
         return {
             articulo_id: 0,
             idarticulo: 0,
             idcategoria: 0,
-            nombre_articulo: "",
+            nombre_categoria: "",
             codigo: "",
             nombre: "",
             precio_venta: 0,
@@ -303,6 +307,9 @@ export default {
             buscar: "",
             arrayCategoria : []
         };
+    },
+    components:{
+        'barcode' : VueBarcode
     },
     computed: {
         isActived: function() {
@@ -383,12 +390,16 @@ export default {
 
             axios
                 .post("/articulo/registrar", {
-                    nombre: this.nombre,
-                    descripcion: this.descripcion
+                    'idcategoria' : this.idcategoria,
+                    'codigo' : this.codigo,
+                    'nombre': this.nombre,
+                    'stock' : this.stock,
+                    'precio_venta' :this.precio_venta,
+                    'descripcion': this.descripcion
                 })
                 .then(function(response) {
                     me.cerrarModal();
-                    me.listarArticulo(1, "", nombre);
+                    me.listarArticulo(1, "", 'nombre');
                 })
                 .catch(function(error) {
                     console.log(error);
@@ -403,13 +414,17 @@ export default {
 
             axios
                 .put("/articulo/actualizar", {
-                    nombre: this.nombre,
-                    descripcion: this.descripcion,
-                    id: this.articulo_id
+                    'idcategoria' : this.idcategoria,
+                    'codigo' : this.codigo,
+                    'nombre': this.nombre,
+                    'stock' : this.stock,
+                    'precio_venta' :this.precio_venta,
+                    'descripcion': this.descripcion,
+                    'id': this.articulo_id
                 })
                 .then(function(response) {
                     me.cerrarModal();
-                    me.listarArticulo(1, "", nombre);
+                    me.listarArticulo(1, "", 'nombre');
                 })
                 .catch(function(error) {
                     console.log(error);
@@ -443,7 +458,7 @@ export default {
                                 id: id
                             })
                             .then(function(response) {
-                                me.listarArticulo(1, "", nombre);
+                                me.listarArticulo(1, "", 'nombre');
                                 swalWithBootstrapButtons.fire(
                                     "Desactivado!",
                                     "O articulo foi desactivado.",
@@ -493,7 +508,7 @@ export default {
                                 id: id
                             })
                             .then(function(response) {
-                                me.listarArticulo(1, "", nombre);
+                                me.listarArticulo(1, "", 'nombre');
                                 swalWithBootstrapButtons.fire(
                                     "Activado!",
                                     "O articulo foi activado.",
@@ -519,10 +534,10 @@ export default {
             this.errorArticulo = 0;
             this.errorMostrarMsjArticulo = [];
 
-            if (!this.nombre)
-                this.errorMostrarMsjArticulo.push(
-                    "El nombre de lo articulo no puede estar vacio"
-                );
+            if(this.idcategoria == 0) this.errorMostrarMsjArticulo.push("Selecionar una categoria.");
+            if (!this.nombre) this.errorMostrarMsjArticulo.push("El nombre de lo articulo no puede estar vacio");
+            if(!this.stock) this.errorMostrarMsjArticulo.push("El stock debe ser un numero");
+            if(!this.precio_venta) this.errorMostrarMsjArticulo.push("El precio de venta deve ser un numero");
 
             if (this.errorMostrarMsjArticulo.length) this.errorArticulo = 1;
 
@@ -531,8 +546,14 @@ export default {
         cerrarModal() {
             this.modal = 0;
             this.tituloModal = "";
+            this.idcategoria = 0;
+            this.nombre_categoria = "";
+            this.codigo = "";
             this.nombre = "";
+            this.precio_venta = 0;
+            this.stock = 0;
             this.descripcion = "";
+            this.errorArticulo = "";
         },
         abrirModal(modelo, accion, data = []) {
             switch (modelo) {
@@ -541,7 +562,12 @@ export default {
                         case "registrar": {
                             this.modal = 1;
                             this.tituloModal = "Registrar Articulo";
+                            this.idcategoria = 0;
+                            this.nombre_categoria = '';
+                            this.codigo = '';
                             this.nombre = "";
+                            this.precio_venta = 0;
+                            this.stock = 0;
                             this.descripcion = "";
                             this.tipoAccion = 1;
                             break;
@@ -549,10 +575,14 @@ export default {
                         case "actualizar": {
                             this.modal = 1;
                             this.tituloModal = "Actualizar Articulo";
-                            this.nombre = data.nombre;
-                            this.descripcion = data.descripcion;
-                            this.articulo_id = data.id;
                             this.tipoAccion = 2;
+                            this.articulo_id = data.id;
+                            this.idcategoria = data.idcategoria;
+                            this.codigo = data.codigo;
+                            this.nombre = data.nombre;
+                            this.stock = data.stock;
+                            this.precio_venta = data.precio_venta;
+                            this.descripcion = data.descripcion;
                             break;
                         }
                     }

@@ -10,7 +10,7 @@
 <template v-if="menu==2">
     <articulo></articulo>
 </template>
-<template v-if="menu==3">
-    <h1>Conteúdo do menu 3</h1>
+<template v-if="menu==6">
+    <cliente></cliente>
 </template>
 @endsection
