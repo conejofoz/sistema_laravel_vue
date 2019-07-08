@@ -3029,21 +3029,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -3131,119 +3116,62 @@ __webpack_require__.r(__webpack_exports__);
       var me = this;
       axios.post("/cliente/registrar", {
         nombre: this.nombre,
-        descripcion: this.descripcion
+        tipo_documento: this.tipo_documento,
+        num_documento: this.num_documento,
+        direccion: this.direccion,
+        telefono: this.telefono,
+        email: this.email
       }).then(function (response) {
         me.cerrarModal();
-        me.listarCliente(1, '', nombre);
+        me.listarPersona(1, '', 'nombre');
       })["catch"](function (error) {
         console.log(error);
       });
     },
-    actualizarCliente: function actualizarCliente() {
-      if (this.validarCliente()) {
+    actualizarPersona: function actualizarPersona() {
+      if (this.validarPersona()) {
         return;
       }
 
       var me = this;
       axios.put("/cliente/actualizar", {
         nombre: this.nombre,
-        descripcion: this.descripcion,
-        id: this.cliente_id
+        tipo_documento: this.tipo_documento,
+        num_documento: this.num_documento,
+        direccion: this.direccion,
+        telefono: this.telefono,
+        email: this.email,
+        id: this.persona_id
       }).then(function (response) {
         me.cerrarModal();
-        me.listarCliente(1, '', nombre);
+        me.listarPersona(1, '', 'nombre');
       })["catch"](function (error) {
         console.log(error);
       });
     },
-    desactivarCliente: function desactivarCliente(id) {
-      var _this = this;
-
-      var swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-          confirmButton: "btn btn-success",
-          cancelButton: "btn btn-danger"
-        },
-        buttonsStyling: false
-      });
-      swalWithBootstrapButtons.fire({
-        title: "Esta seguro de desactivar esta cliente?",
-        text: "Você poderá reverter a operação mais tarde!",
-        type: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Si, desactivar!",
-        cancelButtonText: "No, cancelar!",
-        reverseButtons: true
-      }).then(function (result) {
-        if (result.value) {
-          var me = _this;
-          axios.put("/cliente/desactivar", {
-            id: id
-          }).then(function (response) {
-            me.listarCliente(1, '', nombre);
-            swalWithBootstrapButtons.fire("Desactivado!", "A cliente foi desactivada.", "success");
-          })["catch"](function (error) {
-            console.log(error);
-          });
-        } else if ( // Read more about handling dismissals
-        result.dismiss === Swal.DismissReason.cancel) {
-          swalWithBootstrapButtons.fire("Cancelado", "O registro não foi desativado :)", "error");
-        }
-      });
-    },
-    activarCliente: function activarCliente(id) {
-      var _this2 = this;
-
-      var swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-          confirmButton: "btn btn-success",
-          cancelButton: "btn btn-danger"
-        },
-        buttonsStyling: false
-      });
-      swalWithBootstrapButtons.fire({
-        title: "Esta seguro de activar esta cliente?",
-        text: "Você poderá reverter a operação mais tarde!",
-        type: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Si, activar!",
-        cancelButtonText: "No, cancelar!",
-        reverseButtons: true
-      }).then(function (result) {
-        if (result.value) {
-          var me = _this2;
-          axios.put("/cliente/activar", {
-            id: id
-          }).then(function (response) {
-            me.listarCliente(1, '', nombre);
-            swalWithBootstrapButtons.fire("Activado!", "A cliente foi activada.", "success");
-          })["catch"](function (error) {
-            console.log(error);
-          });
-        } else if ( // Read more about handling dismissals
-        result.dismiss === Swal.DismissReason.cancel) {
-          swalWithBootstrapButtons.fire("Cancelado", "O registro não foi ativado :)", "error");
-        }
-      });
-    },
-    validarCliente: function validarCliente() {
-      this.errorCliente = 0;
-      this.errorMostrarMsjCliente = [];
-      if (!this.nombre) this.errorMostrarMsjCliente.push("El nombre de la cliente no puede estar vacio");
-      if (this.errorMostrarMsjCliente.length) this.errorCliente = 1;
-      return this.errorCliente;
+    validarPersona: function validarPersona() {
+      this.errorPersona = 0;
+      this.errorMostrarMsjPersona = [];
+      if (!this.nombre) this.errorMostrarMsjPersona.push("El nombre de la persona no puede estar vacio");
+      if (this.errorMostrarMsjPersona.length) this.errorPersona = 1;
+      return this.errorPersona;
     },
     cerrarModal: function cerrarModal() {
       this.modal = 0;
       this.tituloModal = "";
       this.nombre = "";
-      this.descripcion = "";
+      this.tipo_documento = '';
+      this.num_documento = '';
+      this.direccion = '';
+      this.telefono = '';
+      this.email = '';
+      this.errorPersona = 0;
     },
     abrirModal: function abrirModal(modelo, accion) {
       var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
 
       switch (modelo) {
-        case "cliente":
+        case "persona":
           {
             switch (accion) {
               case "registrar":
@@ -3251,7 +3179,11 @@ __webpack_require__.r(__webpack_exports__);
                   this.modal = 1;
                   this.tituloModal = "Registrar Cliente";
                   this.nombre = "";
-                  this.descripcion = "";
+                  this.tipo_documento = 'DNI';
+                  this.num_documento = '';
+                  this.direccion = '';
+                  this.telefono = '';
+                  this.email = '';
                   this.tipoAccion = 1;
                   break;
                 }
@@ -3260,9 +3192,13 @@ __webpack_require__.r(__webpack_exports__);
                 {
                   this.modal = 1;
                   this.tituloModal = "Actualizar Cliente";
+                  this.persona_id = data.id;
                   this.nombre = data.nombre;
-                  this.descripcion = data.descripcion;
-                  this.cliente_id = data.id;
+                  this.tipo_documento = data.tipo_documento;
+                  this.num_documento = data.num_documento;
+                  this.direccion = data.direccion;
+                  this.telefono = data.telefono;
+                  this.email = data.email;
                   this.tipoAccion = 2;
                   break;
                 }
@@ -44769,7 +44705,7 @@ var render = function() {
               attrs: { type: "button" },
               on: {
                 click: function($event) {
-                  return _vm.abrirModal("cliente", "registrar")
+                  return _vm.abrirModal("persona", "registrar")
                 }
               }
             },
@@ -45108,7 +45044,7 @@ var render = function() {
                           staticClass: "form-control",
                           attrs: {
                             type: "text",
-                            placeholder: "Nombre de categoría"
+                            placeholder: "Nombre de la persona"
                           },
                           domProps: { value: _vm.nombre },
                           on: {
@@ -45119,11 +45055,7 @@ var render = function() {
                               _vm.nombre = $event.target.value
                             }
                           }
-                        }),
-                        _vm._v(" "),
-                        _c("span", { staticClass: "help-block" }, [
-                          _vm._v("(*) Ingrese el nombre de la categoría")
-                        ])
+                        })
                       ])
                     ]),
                     _vm._v(" "),
@@ -45132,9 +45064,65 @@ var render = function() {
                         "label",
                         {
                           staticClass: "col-md-3 form-control-label",
-                          attrs: { for: "email-input" }
+                          attrs: { for: "text-input" }
                         },
-                        [_vm._v("Descripción")]
+                        [_vm._v("Tipo Documento")]
+                      ),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "col-md-9" }, [
+                        _c(
+                          "select",
+                          {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.tipo_documento,
+                                expression: "tipo_documento"
+                              }
+                            ],
+                            staticClass: "form-control",
+                            on: {
+                              change: function($event) {
+                                var $$selectedVal = Array.prototype.filter
+                                  .call($event.target.options, function(o) {
+                                    return o.selected
+                                  })
+                                  .map(function(o) {
+                                    var val = "_value" in o ? o._value : o.value
+                                    return val
+                                  })
+                                _vm.tipo_documento = $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              }
+                            }
+                          },
+                          [
+                            _c("option", { attrs: { value: "DNI" } }, [
+                              _vm._v("DNI")
+                            ]),
+                            _vm._v(" "),
+                            _c("option", { attrs: { value: "RUC" } }, [
+                              _vm._v("RUC")
+                            ]),
+                            _vm._v(" "),
+                            _c("option", { attrs: { value: "PASS" } }, [
+                              _vm._v("PASS")
+                            ])
+                          ]
+                        )
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-group row" }, [
+                      _c(
+                        "label",
+                        {
+                          staticClass: "col-md-3 form-control-label",
+                          attrs: { for: "text-input" }
+                        },
+                        [_vm._v("Número")]
                       ),
                       _vm._v(" "),
                       _c("div", { staticClass: "col-md-9" }, [
@@ -45143,22 +45131,127 @@ var render = function() {
                             {
                               name: "model",
                               rawName: "v-model",
-                              value: _vm.descripcion,
-                              expression: "descripcion"
+                              value: _vm.num_documento,
+                              expression: "num_documento"
                             }
                           ],
                           staticClass: "form-control",
                           attrs: {
-                            type: "email",
-                            placeholder: "Ingrese descripción"
+                            type: "text",
+                            placeholder: "Número de documento"
                           },
-                          domProps: { value: _vm.descripcion },
+                          domProps: { value: _vm.num_documento },
                           on: {
                             input: function($event) {
                               if ($event.target.composing) {
                                 return
                               }
-                              _vm.descripcion = $event.target.value
+                              _vm.num_documento = $event.target.value
+                            }
+                          }
+                        })
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-group row" }, [
+                      _c(
+                        "label",
+                        {
+                          staticClass: "col-md-3 form-control-label",
+                          attrs: { for: "text-input" }
+                        },
+                        [_vm._v("Dirección")]
+                      ),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "col-md-9" }, [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.direccion,
+                              expression: "direccion"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: { type: "text", placeholder: "Dirección" },
+                          domProps: { value: _vm.direccion },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.direccion = $event.target.value
+                            }
+                          }
+                        })
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-group row" }, [
+                      _c(
+                        "label",
+                        {
+                          staticClass: "col-md-3 form-control-label",
+                          attrs: { for: "text-input" }
+                        },
+                        [_vm._v("Teléfono")]
+                      ),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "col-md-9" }, [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.telefono,
+                              expression: "telefono"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: { type: "text", placeholder: "Teléfono" },
+                          domProps: { value: _vm.telefono },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.telefono = $event.target.value
+                            }
+                          }
+                        })
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-group row" }, [
+                      _c(
+                        "label",
+                        {
+                          staticClass: "col-md-3 form-control-label",
+                          attrs: { for: "text-input" }
+                        },
+                        [_vm._v("E-mail")]
+                      ),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "col-md-9" }, [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.email,
+                              expression: "email"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: { type: "email", placeholder: "E-mail" },
+                          domProps: { value: _vm.email },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.email = $event.target.value
                             }
                           }
                         })
@@ -45172,8 +45265,8 @@ var render = function() {
                           {
                             name: "show",
                             rawName: "v-show",
-                            value: _vm.errorCliente,
-                            expression: "errorCliente"
+                            value: _vm.errorPersona,
+                            expression: "errorPersona"
                           }
                         ],
                         staticClass: "form-group row div-error"
@@ -45182,7 +45275,7 @@ var render = function() {
                         _c(
                           "div",
                           { staticClass: "text-center text-error" },
-                          _vm._l(_vm.errorMostrarMsjCliente, function(error) {
+                          _vm._l(_vm.errorMostrarMsjPersona, function(error) {
                             return _c("div", {
                               key: error,
                               domProps: { textContent: _vm._s(error) }
@@ -45219,7 +45312,7 @@ var render = function() {
                         attrs: { type: "button" },
                         on: {
                           click: function($event) {
-                            return _vm.registrarCliente()
+                            return _vm.registrarPersona()
                           }
                         }
                       },
@@ -45235,7 +45328,7 @@ var render = function() {
                         attrs: { type: "button" },
                         on: {
                           click: function($event) {
-                            return _vm.actualizarCliente()
+                            return _vm.actualizarPersona()
                           }
                         }
                       },
@@ -45247,9 +45340,7 @@ var render = function() {
           ]
         )
       ]
-    ),
-    _vm._v(" "),
-    _vm._m(2)
+    )
   ])
 }
 var staticRenderFns = [
@@ -45284,81 +45375,6 @@ var staticRenderFns = [
         _c("th", [_vm._v("Email")])
       ])
     ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      {
-        staticClass: "modal fade",
-        staticStyle: { display: "none" },
-        attrs: {
-          id: "modalEliminar",
-          tabindex: "-1",
-          role: "dialog",
-          "aria-labelledby": "myModalLabel",
-          "aria-hidden": "true"
-        }
-      },
-      [
-        _c(
-          "div",
-          {
-            staticClass: "modal-dialog modal-danger",
-            attrs: { role: "document" }
-          },
-          [
-            _c("div", { staticClass: "modal-content" }, [
-              _c("div", { staticClass: "modal-header" }, [
-                _c("h4", { staticClass: "modal-title" }, [
-                  _vm._v("Eliminar Categoría")
-                ]),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "close",
-                    attrs: {
-                      type: "button",
-                      "data-dismiss": "modal",
-                      "aria-label": "Close"
-                    }
-                  },
-                  [
-                    _c("span", { attrs: { "aria-hidden": "true" } }, [
-                      _vm._v("×")
-                    ])
-                  ]
-                )
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "modal-body" }, [
-                _c("p", [_vm._v("Estas seguro de eliminar la categoría?")])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "modal-footer" }, [
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-secondary",
-                    attrs: { type: "button", "data-dismiss": "modal" }
-                  },
-                  [_vm._v("Cerrar")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  { staticClass: "btn btn-danger", attrs: { type: "button" } },
-                  [_vm._v("Eliminar")]
-                )
-              ])
-            ])
-          ]
-        )
-      ]
-    )
   }
 ]
 render._withStripped = true
