@@ -280,6 +280,7 @@ export default {
 
     },
     registrarPersona() {
+
       if (this.validarPersona()) {
         return;
       }

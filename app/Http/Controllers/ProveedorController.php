@@ -98,6 +98,7 @@ class ProveedorController extends Controller
         } catch (Exception $e) {
 
             DB::rollBack();
+            
 
          }
     }
@@ -125,7 +126,7 @@ class ProveedorController extends Controller
             $proveedor = Proveedor::findOrFail($request->id);
             $persona = Persona::findOrFail($proveedor->id); //olho
 
-            $persona = new Persona();
+            //$persona = new Persona();
             $persona->nombre = $request->nombre;
             $persona->tipo_documento = $request->tipo_documento;
             $persona->num_documento = $request->num_documento;
