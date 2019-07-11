@@ -16,4 +16,7 @@
 <template v-if="menu==6">
     <cliente></cliente>
 </template>
+<template v-if="menu==8">
+    <rol></rol>
+</template>
 @endsection
