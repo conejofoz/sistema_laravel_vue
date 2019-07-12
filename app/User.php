@@ -16,7 +16,12 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'id',
+        'name',
+        'email', 
+        'password',
+        'condicion',
+        'idrol'
     ];
 
     /**
@@ -29,11 +34,28 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
+     * declarar a variavel $timestamps como false porque a tabela users não tem os campos create_at e update_at
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+
+     public $timestamps = false;
+
+
+    /**
+     * Vamos indicar que um usuário pertence a um Rol
+     * belongs to - pertence a
+     * um usuario pertence a uma pessoa
+     */
+    public function rol(){
+        return $this->belongsTo('App\Rol');
+    }
+
+    /**
+     * Vamos indicar que um usuário faz referência a um pessoa
+     */
+    public function persona(){
+        return $this->belongsTo('App\Persona');
+    }
+
+    
+
 }
