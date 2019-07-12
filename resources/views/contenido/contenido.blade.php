@@ -16,6 +16,9 @@
 <template v-if="menu==6">
     <cliente></cliente>
 </template>
+<template v-if="menu==7">
+    <user></user>
+</template>
 <template v-if="menu==8">
     <rol></rol>
 </template>
