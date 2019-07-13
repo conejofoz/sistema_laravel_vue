@@ -10,7 +10,7 @@ try {
     window.Popper = require('popper.js').default;
     //window.$ = window.jQuery = require('jquery'); //jquery já foi carregado junto com a plantilla
 
-    require('bootstrap');
+    //require('bootstrap');
 } catch (e) {}
 
 /**
