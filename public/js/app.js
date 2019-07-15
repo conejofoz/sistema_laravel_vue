@@ -45712,7 +45712,7 @@ window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 try {
   window.Popper = __webpack_require__(/*! popper.js */ "./node_modules/popper.js/dist/esm/popper.js")["default"]; //window.$ = window.jQuery = require('jquery'); //jquery já foi carregado junto com a plantilla
-  //require('bootstrap');
+  //require('bootstrap'); //estava interferindo na abertura dos menus
 } catch (e) {}
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
