@@ -26,6 +26,7 @@
         "webpack-cli": "^3.3.5"
     },
     "dependencies": {
-        "vue-barcode": "^1.2.0"
+        "vue-barcode": "^1.2.0",
+        "vue-select": "^2.4.0"
     }
 }

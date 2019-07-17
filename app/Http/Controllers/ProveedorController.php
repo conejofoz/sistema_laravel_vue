@@ -61,6 +61,21 @@ class ProveedorController extends Controller
     }
 
 
+    public function selectProveedor(Request $request)
+    {
+        //if (!$request->ajax()) return redirect('/');
+
+        $filtro = $request->filtro;
+        $proveedores = Proveedor::join('personas', 'proveedores.id', '=', 'personas.id')
+        ->where('personas.nombre', 'like', '%' . $filtro . '%')
+        ->orWhere('personas.num_documento', 'like', '%' . $filtro . '%')
+        ->select('personas.id', 'personas.nombre', 'personas.num_documento')
+        ->orderBy('personas.nombre', 'asc')->get();
+
+        return ['proveedores' => $proveedores];
+    }
+
+
 
 
 
@@ -94,13 +109,10 @@ class ProveedorController extends Controller
             $proveedor->save();
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
-            
-
-         }
+        }
     }
 
 
@@ -135,18 +147,16 @@ class ProveedorController extends Controller
             $persona->email = $request->email;
             $persona->save();
 
-            
+
             $proveedor->contacto = $request->contacto;
             $proveedor->telefono_contacto = $request->telefono_contacto;
             //$proveedor->id = $persona->id; //olho
             $proveedor->save();
 
             DB::commit();
-
         } catch (Exception $e) {
 
             DB::rollBack();
-
-         }
+        }
     }
 }
