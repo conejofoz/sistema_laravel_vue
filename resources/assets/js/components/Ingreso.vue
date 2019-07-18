@@ -139,7 +139,7 @@
                 <div class="form-group row border">
                   <div class="col-md-6">
                     <div class="form-group">
-                      <label for="">Articulo</label>
+                      <label for="">Articulo <span style="color:red;" v-show="idarticulo==0">(*Seleccione)</span></label>
                       <div class="form-inline">
                         <input type="text" class="form-control" v-model="codigo" @keyup.enter="buscarArticulo()" placeholder="Ingrese articulo">
                         <button class="btn btn-primary">...</button>
@@ -149,13 +149,13 @@
                   </div>
                   <div class="col-md-2">
                     <div class="form-group">
-                      <label for="">Precio</label>
+                      <label for="">Precio<span style="color:red;" v-show="precio==0">(*Ingrese)</span></label>
                       <input type="number" value="0" step="any" class="form-control" v-model="precio">
                     </div>
                   </div>
                   <div class="col-md-2">
                     <div class="form-group">
-                      <label for="">Cantidad</label>
+                      <label for="">Cantidad <span style="color:red;" v-show="cantidad==0">(*Ingrese)</span></label>
                       <input type="number" value="0" class="form-control" v-model="cantidad">
                     </div>
                   </div>
@@ -179,9 +179,9 @@
                           </tr>
                         </thead>
                         <tbody v-if="arrayDetalle.length">
-                          <tr v-for="detalle in arrayDetalle" :key="detalle.id">
+                          <tr v-for="(detalle, index) in arrayDetalle" :key="detalle.id">
                             <td>
-                              <button type="button" class="btn btn-danger btn-sm"><i class="icon-close"></i></button>
+                              <button @click="eliminarDetalle(index)" type="button" class="btn btn-danger btn-sm"><i class="icon-close"></i></button>
                             </td>
                             <td v-text="detalle.articulo"></td>
                             <td>
@@ -196,15 +196,15 @@
                           </tr>
                           <tr style="background-color: #CEECF5">
                             <td colspan="4" align="right"><strong>Total Parcial:</strong></td>
-                            <td> $ 5</td>
+                            <td> $ {{totalParcial=total-totalImpuesto}}</td>
                           </tr>
                           <tr style="background-color: #CEECF5">
                             <td colspan="4" align="right"><strong>Total Impuesto:</strong></td>
-                            <td> $ 5</td>
+                            <td> $ {{totalImpuesto=((total*impuesto)/(1+impuesto)).toFixed(2)}}</td>
                           </tr>
                           <tr style="background-color: #CEECF5">
                             <td colspan="4" align="right"><strong>Total Neto:</strong></td>
-                            <td> $ 5</td>
+                            <td> $ {{ total=calcularTotal}}</td>
                           </tr>
                         </tbody>
                         <tbody v-else>
@@ -278,6 +278,8 @@ export default {
       num_comprobante: '',
       impuesto: 0.18,
       total: 0.0,
+      totalImpuesto: 0.0,
+      totalParcial: 0.0,
       arrayIngreso : [],
       arrayProveedor: [],
       arrayDetalle: [],
@@ -336,6 +338,13 @@ export default {
 
       return pagesArray;
 
+    },
+    calcularTotal: function(){
+      var resultado = 0.0
+      for(var i=0;i<this.arrayDetalle.length;i++){
+        resultado = resultado + (this.arrayDetalle[i].precio*this.arrayDetalle[i].cantidad)
+      }
+      return resultado
     }
   },
   methods: {
@@ -402,14 +411,56 @@ export default {
       me.listarIngreso(page,buscar,criterio);
 
     },
+    encuentra(id){
+        var sw=0;
+        for(var i=0;i<this.arrayDetalle.length;i++){
+            if(this.arrayDetalle[i].idarticulo==id){
+              sw=true;
+            }
+        }
+        return sw;
+    },
+    eliminarDetalle(index){
+        let me = this
+        me.arrayDetalle.splice(index,1)
+    },
     agregarDetalle(){
+      const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: "btn btn-success",
+          cancelButton: "btn btn-danger"
+        },
+        buttonsStyling: false
+      });
         let me=this
-        me.arrayDetalle.push({
-            idarticulo: me.idarticulo,
-            articulo: me.articulo,
-            cantidad: me.cantidad,
-            precio: me.precio
-        })
+        if(me.idarticulo ==0 || me.cantidad == 0 || me.precio == 0){
+
+        } else{
+            if(me.encuentra(me.idarticulo)){
+                //swall({
+                //  type: 'error',
+                //  title: 'Error....',
+                //  text: 'Ese articulo ya se encuentra agregado!',
+                //})
+                swalWithBootstrapButtons.fire(
+                "error",
+                "Ese articulo ya se encuentra agregado! :)",
+                "error"
+            );
+            } else {
+                me.arrayDetalle.push({
+                  idarticulo: me.idarticulo,
+                  articulo: me.articulo,
+                  cantidad: me.cantidad,
+                  precio: me.precio
+                })
+                me.codigo = 0
+                me.idarticulo = 0
+                me.articulo = ''
+                me.cantidad = 0
+                me.precio = 0
+            }
+        }
     },
     registrarIngreso() {
 

@@ -92,8 +92,8 @@ class ArticuloController extends Controller
         $articulo->codigo = $request->codigo;
         $articulo->nombre = $request->nombre;
         $articulo->precio_venta = $request->precio_venta;
-        //$articulo->stock = $request->stock;
-        $articulo->stock = $articulo->stock + $request->stock;
+        $articulo->stock = $request->stock;
+        //$articulo->stock = $articulo->stock + $request->stock;
         $articulo->descripcion = $request->descripcion;
         $articulo->condicion ='1';
         $articulo->save();
