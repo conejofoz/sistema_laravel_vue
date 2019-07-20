@@ -135,6 +135,13 @@
                           <input type="text" class="form-control" v-model="num_comprobante">
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        <div v-show="errorIngreso" class="form-group row div-error">
+                            <div class="text-center text-error">
+                                <div v-for="error in errorMostrarMsjIngreso" :key="error" v-text="error"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group row border">
                   <div class="col-md-6">
@@ -142,7 +149,7 @@
                       <label for="">Articulo <span style="color:red;" v-show="idarticulo==0">(*Seleccione)</span></label>
                       <div class="form-inline">
                         <input type="text" class="form-control" v-model="codigo" @keyup.enter="buscarArticulo()" placeholder="Ingrese articulo">
-                        <button class="btn btn-primary">...</button>
+                        <button @click="abrirModal()" class="btn btn-primary">...</button>
                         <input type="text" readonly class="form-control" v-model="articulo">
                       </div>
                     </div>
@@ -238,7 +245,54 @@
             </button>
           </div>
           <div class="modal-body">
-            
+              <div class="input-group">
+                <select class="form-control col-md-3" v-model="criterioA">
+                  <option value="nombre">Nombre</option>
+                  <option value="descripcion">Descripción</option>
+                  <option value="codigo">Código</option>
+                </select>
+                <input type="text" class="form-control" v-model="buscarA" @keyup.enter="listarArticulo(buscarA,criterioA)" placeholder="Texto a buscar"/>
+                <button type="submit" class="btn btn-primary" @click="listarArticulo(buscarA,criterioA)">
+                  <i class="fa fa-search"></i> Buscar
+                </button>
+              </div>
+              <div class="table-responsive">
+                  <table class="table table-bordered table-striped table-sm">
+                      <thead>
+                        <tr>
+                          <th>Opciones</th>
+                          <th>Código</th>
+                          <th>Nombre</th>
+                          <th>Articulo</th>
+                          <th>Precio Venta</th>
+                          <th>Stock</th>
+                          <th>Estado</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="articulo in arrayArticulo" :key="articulo.id">
+                          <td>
+                            <button type="button" @click="agregarDetalleModal(articulo)" class="btn btn-success btn-sm">
+                              <i class="icon-check"></i>
+                            </button>
+                          </td>
+                          <td v-text="articulo.codigo"></td>
+                          <td v-text="articulo.nombre"></td>
+                          <td v-text="articulo.nombre_categoria"></td>
+                          <td v-text="articulo.precio_venta"></td>
+                          <td v-text="articulo.stock"></td>
+                          <td>
+                            <div v-if="articulo.condicion">
+                              <span class="badge badge-success">Activo</span>
+                            </div>
+                            <div v-else>
+                              <span class="badge badge-danger">Desactivado</span>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                  </table>
+              </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="cerrarModal()">Cerrar</button>
@@ -300,6 +354,8 @@ export default {
       offset : 3,
       criterio : 'num_comprobante',
       buscar : '',
+      criterioA: 'nombre',
+      buscarA: '',
       arrayArticulo: [],
       idarticulo: 0,
       codigo: '',
@@ -462,6 +518,47 @@ export default {
             }
         }
     },
+    agregarDetalleModal(data = []){
+      const swalWithBootstrapButtons = Swal.mixin({
+          customClass: {
+          confirmButton: "btn btn-success",
+          cancelButton: "btn btn-danger"
+        },
+        buttonsStyling: false
+      });      
+        let me = this
+        if(me.encuentra(data['id'])){
+            //swall({
+            //  type: 'error',
+            //  title: 'Error....',
+            //  text: 'Ese articulo ya se encuentra agregado!',
+            //})
+            swalWithBootstrapButtons.fire(
+              "error",
+              "Ese articulo ya se encuentra agregado! :)",
+              "error"
+            );
+        } else {
+            me.arrayDetalle.push({
+            idarticulo: data.id,
+            articulo: data.nombre,
+            cantidad: 1,
+            precio: data.precio_venta
+            })
+                        
+        }
+    },
+    listarArticulo(buscar, criterio) {
+        let me = this;
+        var url = "/articulo?buscar=" + buscar + "&criterio=" + criterio;
+        axios.get(url).then(function(response) {
+             var respuesta = response.data;
+             me.arrayArticulo = respuesta.articulos.data;
+        })
+        .catch(function(error) {
+                console.log(error);
+        });
+    },
     registrarIngreso() {
 
       if (this.validarIngreso()) {
@@ -471,20 +568,29 @@ export default {
       let me = this;
 
       axios
-        .post("/user/registrar", {
-          nombre : this.nombre,
-          tipo_documento : this.tipo_documento,
-          num_documento : this.num_documento,
-          direccion : this.direccion,
-          telefono : this.telefono,
-          email : this.email,
-          usuario : this.usuario,
-          password : this.password,
-          idrol: this.idrol
+        .post("/ingreso/registrar", {
+            'idproveedor' : this.idproveedor,
+            'tipo_comprobante' : this.tipo_comprobante,
+            'serie_comprobante' : this.serie_comprobante,
+            'num_comprobante' : this.num_comprobante,
+            'impuesto' : this.impuesto,
+            'total' : this.total,
+            'data' : this.arrayDetalle
         })
         .then(function(response) {
-          me.cerrarModal();
-          me.listarIngreso(1,'','nombre');
+          me.listado=1 //fecha o formulario e mostra a consulta de compras
+          me.listarIngreso(1,'','num_comprobante');
+          me.idproveedor=0
+          me.tipo_comprobante='BOLETA'
+          me.serie_comprobante=''
+          me.num_comprobante=''
+          me.impuesto=0.18
+          me.total=0.0
+          me.idarticulo=0
+          me.articulo=''
+          me.cantidad=0
+          me.precio=0
+          me.arrayDetalle=[]
         })
         .catch(function(error) {
           console.log(error);
@@ -518,7 +624,6 @@ export default {
           console.log(error);
         });
     },
-    
     desactivarUsuario(id) {
       const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
@@ -620,20 +725,33 @@ export default {
         });
     },
     validarIngreso() {
-      this.errorIngreso = 0;
-      this.errorMostrarMsjIngreso = [];
+        this.errorIngreso = 0;
+        this.errorMostrarMsjIngreso = [];
 
-      if (!this.nombre) this.errorMostrarMsjIngreso.push("El nombre de la persona no puede estar vacio");
-      if (!this.usuario) this.errorMostrarMsjIngreso.push("El nombre de usuario no puede estar vacio");
-      if (!this.password) this.errorMostrarMsjIngreso.push("El password no puede estar vacio");
-      if (this.idrol==0) this.errorMostrarMsjIngreso.push("Debes selecionar un rol para el usuario");
+        if(this.idproveedor==0) this.errorMostrarMsjIngreso.push("Seleccione un proveedor")
+        if(this.tipo_comprobante==0) this.errorMostrarMsjIngreso.push("Seleccione el comprobante")
+        if(!this.num_comprobante) this.errorMostrarMsjIngreso.push("Ingrese el número de comprobante")
+        if(!this.impuesto) this.errorMostrarMsjIngreso.push("Ingrese el impuesto de compra")
+        if(this.arrayDetalle.length <= 0) this.errorMostrarMsjIngreso.push("Ingrese detalles")
 
-      if (this.errorMostrarMsjIngreso.length) this.errorIngreso = 1;
+        if (this.errorMostrarMsjIngreso.length) this.errorIngreso = 1;
 
-      return this.errorIngreso;
+        return this.errorIngreso;
     },
     mostrarDetalle(){
-        this.listado = 0;
+        let me = this
+        me.listado = 0;
+        me.idproveedor=0
+        me.tipo_comprobante='BOLETA'
+        me.serie_comprobante=''
+        me.num_comprobante=''
+        me.impuesto=0.18
+        me.total=0.0
+        me.idarticulo=0
+        me.articulo=''
+        me.cantidad=0
+        me.precio=0
+        me.arrayDetalle=[]
     },
     ocultarDetalle(){
         this.listado = 1;
@@ -641,60 +759,14 @@ export default {
     cerrarModal() {
       this.modal = 0;
       this.tituloModal = "";
-      this.nombre = "";
-      this.tipo_documento = 'DNI';
-      this.num_documento = '';
-      this.direccion = '';
-      this.telefono = '';
-      this.email = '';
-      this.usuario = '';
-      this.password = '';
-      this.idrol = 0;
-      this.errorIngreso = 0;
-
     },
-    abrirModal(modelo, accion, data = []) {
+    abrirModal() {
+        this.arrayArticulo = [] //estava aparecendo itens quandro abria o modal antes de consultar
+        this.modal = 1;
+        this.tituloModal = "Seleccione uno o varios articulos";
 
-      this.selectRol();
 
-      switch (modelo) {
-        case "persona": {
-          switch (accion) {
-            case "registrar": {
-              this.modal = 1;
-              this.tituloModal = "Registrar Usuario";
-              this.nombre = "";
-              this.tipo_documento = 'DNI';
-              this.num_documento = '';
-              this.direccion = '';
-              this.telefono = '';
-              this.email = '';
-              this.usuario = '';
-              this.password = '';
-              this.idrol = 0;
-              this.tipoAccion = 1;
-              break;
-            }
-            case "actualizar": {
-              this.modal = 1;
-              this.tituloModal = "Actualizar Usuario";
-              this.persona_id = data.id;
-              this.nombre = data.nombre;
-              this.tipo_documento = data.tipo_documento;
-              this.num_documento = data.num_documento;
-              this.direccion = data.direccion;
-              this.telefono = data.telefono;
-              this.email = data.email;
-              this.usuario = data.usuario;
-              this.password = data.password;
-              this.idrol = data.idrol;
-              
-              this.tipoAccion = 2;
-              break;
-            }
-          }
-        }
-      }
+
     }
   },
   mounted() {

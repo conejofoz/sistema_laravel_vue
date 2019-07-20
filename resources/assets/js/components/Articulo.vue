@@ -27,18 +27,8 @@
                   <option value="nombre">Nombre</option>
                   <option value="descripcion">Descripción</option>
                 </select>
-                <input
-                  type="text"
-                  class="form-control"
-                  v-model="buscar"
-                  @keyup.enter="listarArticulo(1,buscar,criterio)"
-                  placeholder="Texto a buscar"
-                />
-                <button
-                  type="submit"
-                  class="btn btn-primary"
-                  @click="listarArticulo(1,buscar,criterio)"
-                >
+                <input type="text" class="form-control" v-model="buscar" @keyup.enter="listarArticulo(1,buscar,criterio)" placeholder="Texto a buscar"/>
+                <button type="submit" class="btn btn-primary" @click="listarArticulo(1,buscar,criterio)">
                   <i class="fa fa-search"></i> Buscar
                 </button>
               </div>

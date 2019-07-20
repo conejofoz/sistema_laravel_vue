@@ -92,10 +92,10 @@ class IngresoController extends Controller
             $ingreso->tipo_comprobante = $request->tipo_comprobante;
             $ingreso->serie_comprobante = $request->serie_comprobante;
             $ingreso->num_comprobante = $request->num_comprobante;
-            $ingreso->fecha_hora = $request->fecha_hora;
-            $ingreso->impusto = $request->impusto;
+            $ingreso->fecha_hora = $mytime->toDateString();
+            $ingreso->impuesto = $request->impuesto;
             $ingreso->total = $request->total;
-            $ingreso->estado = $request->estado;
+            $ingreso->estado = 'Registrado';
             $ingreso->save();
 
             $detalles = $request->data;

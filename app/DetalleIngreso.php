@@ -13,6 +13,6 @@ class DetalleIngreso extends Model
         'cantidad',
         'precio'
     ];
-    protected $timestamps = false;
+    public $timestamps = false;
 
 }
