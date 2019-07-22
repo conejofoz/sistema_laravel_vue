@@ -14,7 +14,7 @@
           </button>
         </div>
         <!-- Listado -->
-        <template v-if="listado">
+        <template v-if="listado==1">
             <div class="card-body">
               <div class="form-group row">
                 <div class="col-md-6">
@@ -50,10 +50,10 @@
                   <tbody>
                     <tr v-for="ingreso in arrayIngreso" :key="ingreso.id">
                       <td>
-                        <button type="button" @click="abrirModal('ingreso','actualizar', ingreso)" class="btn btn-success btn-sm">
+                        <button type="button" @click="verIngreso(ingreso.id)" class="btn btn-success btn-sm">
                           <i class="icon-eye"></i>
                         </button> &nbsp;
-                        <template v-if="ingreso.condicion=='Registrado'">
+                        <template v-if="ingreso.estado=='Registrado'">
                           <button type="button" class="btn btn-danger btn-sm" @click="desactivarIngreso(ingreso.id)">
                             <i class="icon-trash"></i>
                           </button>
@@ -92,7 +92,7 @@
         </template>
         <!--Fim Listado -->
         <!-- Detalle -->
-        <template v-else>
+        <template v-else-if="listado==0">
             <div class="card-body">
                 <div class="form-group row border">
                     <div class="col-md-9">
@@ -231,6 +231,89 @@
             </div>
         </template>
         <!-- fim detalle -->
+        <!--ver ingreso-->
+        <template v-else-if="listado==2">
+            <div class="card-body">
+                <div class="form-group row border">
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <label for="">Proveedor</label>
+                            <p v-text="proveedor"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="">Impuesto</label>
+                        <p v-text="impuesto"></p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="">Tipo Comprobante</label>
+                            <p v-text="tipo_comprobante"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="">Serie Comprobante</label>
+                          <p v-text="serie_comprobante"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="">Numero Comprobante</label>
+                          <p v-text="num_comprobante"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row border">
+                    <div class="table-responsive col-md-12">
+                      <table class="table table-bordered table-striped table-sm">
+                        <thead>
+                          <tr>
+                            <th>Articulo</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Subtotal</th>
+                          </tr>
+                        </thead>
+                        <tbody v-if="arrayDetalle.length">
+                          <tr v-for="(detalle) in arrayDetalle" :key="detalle.id">
+                            <td v-text="detalle.articulo"></td>
+                            <td v-text="detalle.precio"></td>
+                            <td v-text="detalle.cantidad"></td>
+                            <td>
+                              {{detalle.precio*detalle.cantidad}}
+                            </td>
+                          </tr>
+                          <tr style="background-color: #CEECF5">
+                            <td colspan="3" align="right"><strong>Total Parcial:</strong></td>
+                            <td> $ {{totalParcial=total-totalImpuesto}}</td>
+                          </tr>
+                          <tr style="background-color: #CEECF5">
+                            <td colspan="3" align="right"><strong>Total Impuesto:</strong></td>
+                            <td> $ {{totalImpuesto=((total*impuesto)).toFixed(2)}}</td>
+                          </tr>
+                          <tr style="background-color: #CEECF5">
+                            <td colspan="3" align="right"><strong>Total Neto:</strong></td>
+                            <td> $ {{ total }}</td>
+                          </tr>
+                        </tbody>
+                        <tbody v-else>
+                            <tr>
+                                <td colspan="4">No hay articulos agregados</td>
+                            </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-md-12">
+                      <button type="button" @click="ocultarDetalle()" class="btn btn-secondary">Cerrar</button>
+                  </div>
+                </div>
+            </div>
+        </template>
+        <!-- =====================================fim ver ingreso===================================================-->
+
       </div>
       <!-- Fin ejemplo de tabla Listado -->
     </div>
@@ -326,6 +409,7 @@ export default {
     return {
       ingreso_id: 0,
       idproveedor: 0,
+      proveedor: '',
       nombre: '',
       tipo_comprobante: 'BOLETA',
       serie_comprobante: '',
@@ -624,7 +708,7 @@ export default {
           console.log(error);
         });
     },
-    desactivarUsuario(id) {
+    desactivarIngreso(id) {
       const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
           confirmButton: "btn btn-success",
@@ -635,7 +719,7 @@ export default {
 
       swalWithBootstrapButtons
         .fire({
-          title: "Esta seguro de desactivar este usuario?",
+          title: "Esta seguro de desactivar este ingreso?",
           text: "Você poderá reverter a operação mais tarde!",
           type: "warning",
           showCancelButton: true,
@@ -648,14 +732,14 @@ export default {
             let me = this;
 
             axios
-              .put("/user/desactivar", {
+              .put("/ingreso/desactivar", {
                 id: id
               })
               .then(function(response) {
-                me.listarIngreso(1,'','nombre');
+                me.listarIngreso(1,'','num_comprobante');
                 swalWithBootstrapButtons.fire(
-                  "Desactivado!",
-                  "O usuario foi desactivado.",
+                  "Anulado!",
+                  "O ingreso foi anulado.",
                   "success"
                 );
               })
@@ -669,56 +753,6 @@ export default {
             swalWithBootstrapButtons.fire(
               "Cancelado",
               "O registro não foi desativado :)",
-              "error"
-            );
-          }
-        });
-    },
-    activarUsuario(id) {
-      const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-          confirmButton: "btn btn-success",
-          cancelButton: "btn btn-danger"
-        },
-        buttonsStyling: false
-      });
-
-      swalWithBootstrapButtons
-        .fire({
-          title: "Esta seguro de activar este usuario?",
-          text: "Você poderá reverter a operação mais tarde!",
-          type: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Si, activar!",
-          cancelButtonText: "No, cancelar!",
-          reverseButtons: true
-        })
-        .then(result => {
-          if (result.value) {
-            let me = this;
-
-            axios
-              .put("/user/activar", {
-                id: id
-              })
-              .then(function(response) {
-                me.listarIngreso(1,'','nombre');
-                swalWithBootstrapButtons.fire(
-                  "Activado!",
-                  "O usuario foi activado.",
-                  "success"
-                );
-              })
-              .catch(function(error) {
-                console.log(error);
-              });
-          } else if (
-            // Read more about handling dismissals
-            result.dismiss === Swal.DismissReason.cancel
-          ) {
-            swalWithBootstrapButtons.fire(
-              "Cancelado",
-              "O registro não foi ativado :)",
               "error"
             );
           }
@@ -755,6 +789,46 @@ export default {
     },
     ocultarDetalle(){
         this.listado = 1;
+    },
+    verIngreso(id){
+        let me = this
+        me.listado = 2
+        //obtener cabecera
+        var arrayIngresoT = []
+        var url = '/ingreso/obtenerCabecera?id=' + id;
+
+        axios
+          .get(url)
+          .then(function(response) {
+            var respuesta = response.data;
+            arrayIngresoT = respuesta.ingreso;
+
+            me.proveedor = arrayIngresoT[0]['nombre']
+            me.tipo_comprobante = arrayIngresoT[0]['tipo_comprobante']
+            me.serie_comprobante = arrayIngresoT[0]['serie_comprobante']
+            me.num_comprobante = arrayIngresoT[0]['num_comprobante']
+            me.impuesto = arrayIngresoT[0]['impuesto']
+            me.total = arrayIngresoT[0]['total']
+
+
+
+          })
+          .catch(function(error) {
+            console.log(error);
+          });
+        //obtener detalles
+         var urld = '/ingreso/obtenerDetalles?id=' + id;
+
+        axios
+          .get(urld)
+          .then(function(response) {
+            var respuesta = response.data;
+            me.arrayDetalle = respuesta.detalles;
+          })
+          .catch(function(error) {
+            console.log(error);
+          });
+
     },
     cerrarModal() {
       this.modal = 0;
