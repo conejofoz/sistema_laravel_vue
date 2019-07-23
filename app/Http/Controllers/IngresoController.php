@@ -63,6 +63,10 @@ class IngresoController extends Controller
             'ingresos' => $ingresos
         ];
     }
+
+
+
+    
     public function obtenerCabecera(Request $request)
     {
         if (!$request->ajax()) return redirect('/');
@@ -89,6 +93,9 @@ class IngresoController extends Controller
         ];
     }
 
+
+
+
     public function obtenerDetalles(Request $request)
     {
         if (!$request->ajax()) return redirect('/');
@@ -106,12 +113,6 @@ class IngresoController extends Controller
             'detalles' => $detalles
         ];
     }
-
-
-
-    
-
-
 
 
 
@@ -164,7 +165,6 @@ class IngresoController extends Controller
             DB::rollBack();
         }
     }
-
 
 
 
