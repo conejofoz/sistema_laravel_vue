@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\DB; //para trabalhar com transações
 use Carbon\Carbon; //para trabalhar com datas
 use App\Venta;
 use App\DetalleVenta;
+use App\Articulo; // eu
+use PhpParser\Node\Stmt\TryCatch;
+use Mockery\Exception;
 
 class VentaController extends Controller
 {
@@ -158,6 +161,13 @@ class VentaController extends Controller
                 $detalle->descuento = $det['descuento'];
                 $detalle->save();
             }
+
+            foreach ($detalles as $et => $item) {
+                $articulo = Articulo::findOrFail($item['idarticulo']);
+                $articulo->stock = $articulo->stock - $item['cantidad'];
+                $articulo->save();
+            }
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -174,14 +184,40 @@ class VentaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-   
 
 
-    public function desactivar(Request $request)
+
+    public function desactivarVenta(Request $request)
     {
-        if (!$request->ajax()) return redirect('/');
-        $venta = Venta::findOrFail($request->id);
-        $venta->estado = 'Anulado';
-        $venta->save();
+        try {
+            DB::beginTransaction();
+
+            $id = $request->id;
+
+            if (!$request->ajax()) return redirect('/');
+            $venta = Venta::findOrFail($request->id);
+            $venta->estado = 'Anulado';
+            $venta->save();
+
+            $detalles = DetalleVenta::join('articulos', 'detalle_ventas.idarticulo', '=', 'articulos.id')
+                ->select(
+                    'detalle_ventas.cantidad',
+                    'detalle_ventas.precio',
+                    'detalle_ventas.descuento',
+                    'articulos.nombre as articulo',
+                    'detalle_ventas.idarticulo'
+                )
+                ->where('detalle_ventas.idventa', '=', $id)
+                ->orderBy('detalle_ventas.id', 'desc')->get();
+            foreach ($detalles as $key => $item) {
+                $articulo = Articulo::findOrFail($item['idarticulo']);
+                $articulo->stock = $articulo->stock + $item['cantidad'];
+                $articulo->save();
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+        }
     }
 }
