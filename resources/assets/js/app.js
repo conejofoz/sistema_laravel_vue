@@ -27,6 +27,7 @@ Vue.component('rol', require('./components/Rol.vue').default);
 Vue.component('user', require('./components/User.vue').default);
 Vue.component('ingreso', require('./components/Ingreso.vue').default);
 Vue.component('venta', require('./components/Venta.vue').default);
+Vue.component('dashboard', require('./components/Dashboard.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -37,6 +38,6 @@ Vue.component('venta', require('./components/Venta.vue').default);
 const app = new Vue({
     el: '#app',
     data: {
-        menu: 10
+        menu: 0
     }
 });

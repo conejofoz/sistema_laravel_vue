@@ -26,6 +26,8 @@
         "webpack-cli": "^3.3.5"
     },
     "dependencies": {
+        "laravel-echo": "^1.5.4",
+        "pusher-js": "^5.0.0",
         "vue-barcode": "^1.2.0",
         "vue-select": "^2.4.0"
     }

@@ -70,7 +70,7 @@
                       <td v-text="venta.serie_comprobante"></td>
                       <td v-text="venta.num_comprobante"></td>
                       <td v-text="venta.fecha_hora"></td>
-                      <td v-text="venta.total"></td>
+                      <td v-text="`R$ ${parseFloat(venta.total).toFixed(2).replace('.',',')}`" style="align:right;" class="text-right"></td>
                       <td v-text="venta.impuesto"></td>
                       <td v-text="venta.estado"></td>
                     
@@ -437,7 +437,7 @@ export default {
       arrayVenta : [],
       arrayCliente: [],
       arrayDetalle: [],
-      listado:1,
+      listado:0,
       modal: 0,
       tituloModal: "",
       tipoAccion: 0,
