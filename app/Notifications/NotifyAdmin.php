@@ -10,15 +10,17 @@ use Illuminate\Notifications\Messages\MailMessage;
 class NotifyAdmin extends Notification
 {
     use Queueable;
+    public $GlobalDatos;
+
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Array $datos)
     {
-        //
+        $this->GlobalDatos = $datos;
     }
 
     /**
@@ -29,7 +31,25 @@ class NotifyAdmin extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['database','broadcast'];
+        /**
+         * não consegui fazer as notificaçoes em tempo real
+         */
+        //return ['database'];
+    }
+
+    public function toDatabase($notifiable){
+        return [
+            'datos' => $this->GlobalDatos
+        ];
+    }
+
+    public function toBroadcast($notifiable){
+        return [
+            'data' => [
+                'datos' => $this->GlobalDatos
+            ]
+        ];
     }
 
     /**

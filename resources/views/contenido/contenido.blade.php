@@ -43,7 +43,7 @@
     <h1>Ayuda</h1>
 </template>
 <template v-if="menu==12">
-    <h1>Acerca de/h1>
+    <h1>Acerca de</h1>
 </template>
 
 @elseif(Auth::user()->idrol == 2)
@@ -63,7 +63,7 @@
     <h1>Ayuda</h1>
 </template>
 <template v-if="menu==12">
-    <h1>Acerca de/h1>
+    <h1>Acerca de</h1>
 </template>
 
 @elseif(Auth::user()->idrol == 3)
@@ -90,7 +90,7 @@
     <h1>Ayuda</h1>
 </template>
 <template v-if="menu==12">
-    <h1>Acerca de/h1>
+    <h1>Acerca de</h1>
 </template>
 
 @else

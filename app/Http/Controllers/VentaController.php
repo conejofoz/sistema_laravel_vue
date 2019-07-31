@@ -10,6 +10,8 @@ use App\DetalleVenta;
 use App\Articulo; // eu
 use PhpParser\Node\Stmt\TryCatch;
 use Mockery\Exception;
+use App\User;
+use App\Notifications\NotifyAdmin;
 
 class VentaController extends Controller
 {
@@ -144,16 +146,16 @@ class VentaController extends Controller
             ->where('ventas.id', '=', $id)
             ->orderBy('ventas.id', 'desc')->take(1)->get();
 
-            $detalles = DetalleVenta::join('articulos', 'detalle_ventas.idarticulo', '=', 'articulos.id')
+        $detalles = DetalleVenta::join('articulos', 'detalle_ventas.idarticulo', '=', 'articulos.id')
             ->select('detalle_ventas.cantidad', 'detalle_ventas.precio', 'detalle_ventas.descuento', 'articulos.nombre as articulo')
             ->where('detalle_ventas.idventa', '=', $id)
             ->orderBy('detalle_ventas.id', 'desc')->get();
 
-            $numventa = Venta::select('num_comprobante')->where('id', $id)->get();
+        $numventa = Venta::select('num_comprobante')->where('id', $id)->get();
 
-            $pdf = \PDF::loadView('pdf.venta', ['venta' =>$venta, 'detalles'=>$detalles]);
-            //return $pdf->download('venta-'.$numventa[0]->num_comprobante.'.pdf');
-            return $pdf->stream('venta-'.$numventa[0]->num_comprobante.'.pdf');
+        $pdf = \PDF::loadView('pdf.venta', ['venta' => $venta, 'detalles' => $detalles]);
+        //return $pdf->download('venta-'.$numventa[0]->num_comprobante.'.pdf');
+        return $pdf->stream('venta-' . $numventa[0]->num_comprobante . '.pdf');
     }
 
 
@@ -205,6 +207,26 @@ class VentaController extends Controller
                 $articulo->stock = $articulo->stock - $item['cantidad'];
                 $articulo->save();
             }
+
+            $fechaActual = date('Y-m-d');
+            $numVentas = DB::table('ventas')->whereDate('created_at', $fechaActual)->count();
+            $numIngresos = DB::table('ingresos')->whereDate('created_at', $fechaActual)->count();
+            $arregloDatos = [
+                'ventas' => [
+                    'numero' => $numVentas,
+                    'msj' => 'Ventas'
+                ],
+                'ingresos' => [
+                    'numero' => $numIngresos,
+                    'msj' => 'Ingresos'
+                ]
+            ];
+            $allUsers = User::all();
+
+            foreach ($allUsers as $notificar) {
+                User::findOrFail($notificar->id)->notify(new NotifyAdmin($arregloDatos));
+            }
+
 
             DB::commit();
 
